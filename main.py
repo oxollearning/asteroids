@@ -32,16 +32,34 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
+        # backup previous player position
+        player_pos = player.position.copy()
+
         updatable.update(dt)
+
+        # prevent player out from screen
+        if not player.is_inside(screen):
+            print("player not inside")
+            player.position = player_pos
+
+        # kill bullet outside screen
+        for bullet in bullets:
+            if bullet.is_outside(screen):
+                bullet.kill()
+
         for asteroid in asteroids:
             if asteroid.is_collide(player):
                 print("Game over!")
                 sys.exit()
+            if asteroid.is_outside(screen):
+                asteroid.kill()
+                continue
             for bullet in bullets:
                 if asteroid.is_collide(bullet):
                     bullet.kill()
                     asteroid.split()
 
+        # print(f"bullet: {len(bullets)} , asteroid: {len(asteroids)}")
         screen.fill("black")
         for obj in drawable:
             obj.draw(screen)
